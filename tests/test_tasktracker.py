@@ -4,6 +4,9 @@ import json
 import tempfile
 import shutil
 from tasktracker.tasks import Manager
+from tasktracker.pretty_print import print_table
+from io import StringIO
+from unittest.mock import patch
 import time
 
 
@@ -397,6 +400,30 @@ class TestListing(BaseTestCase):
         self.assertIn("Second task", descriptions)
         self.assertIn("Third task", descriptions)
         
+
+class TestPrintTable(BaseTestCase):
+    """Check table output before refactoring print_table."""
+
+    def test_empty_table(self):
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            print_table([])
+
+        self.assertIn('There is no task to display', output.getvalue())
+
+    def test_table_with_tasks(self):
+        manager = Manager(self.test_file)
+        manager.add_task('First task')
+        manager.add_task('Second task', 'done')
+
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            print_table(manager.tasks, 'My Tasks')
+
+        result = output.getvalue()
+        self.assertIn('My Tasks', result)
+        self.assertIn('First task', result)
+        self.assertIn('Second task', result)
+        self.assertIn('done', result)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -219,3 +219,6 @@ __pycache__/
 .pytest_cache/
 *.pyc
 data/
+
+.coverage
+htmlcov/
