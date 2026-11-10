@@ -176,31 +176,30 @@ class Manager:
                 return deleted_task
         raise ValueError(f"No task found with index {task_index}")
 
-    def update_task(self, task_index: int, **kwargs: str) -> Task:
-        """Update a task's properties by its index number.
-
-        Args:
-            task_index: The index number of the task to update.
-            **kwargs: Keyword arguments for properties to update.
-                     Supported keys: 'description', 'status'.
-
-        Returns:
-            The updated Task object.
-
-        Raises:
-            ValueError: If no task is found with the given index.
-        """
+    def _find_task_by_index(self, task_index: int) -> Task:
+        """Find a task by its index."""
         for task in self.tasks:
             if task.index == int(task_index):
-                if 'description' in kwargs:
-                    task.description = kwargs['description']
-                if 'status' in kwargs:
-                    task.status = kwargs['status'].lower()
-                task.updatedAt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                self.save_tasks()
                 return task
+
         print(f"No task found with index {task_index}")
         raise ValueError(f"No task found with index {task_index}")
+
+    def update_task(self, task_index: int, **kwargs: str) -> Task:
+        """Update a task's description or status."""
+        task = self._find_task_by_index(task_index)
+
+        if 'description' in kwargs:
+            task.description = kwargs['description']
+
+        if 'status' in kwargs:
+            task.status = kwargs['status'].lower()
+
+        task.updatedAt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.save_tasks()
+
+        return task
+
 
     def status(self, task_index: int, status: str) -> Task:
         """Update a task's status using predefined status commands.
