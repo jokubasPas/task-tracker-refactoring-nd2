@@ -34,33 +34,34 @@ def _confirm_delete(task) -> bool:
             print(" - Please enter 'y' for yes or 'n' for no.")
 
 
+
+def _find_task_to_delete(task_index: int):
+    """Find a task by its index."""
+    for task in manager.get_all_tasks():
+        if task.index == task_index:
+            return task
+    return None
+
+
 def _handle_delete_command(args: argparse.Namespace) -> None:
-    """Handle the 'delete' command with user confirmation.
-    
-    Args:
-        args: Parsed command line arguments containing task_index to delete.
-    """
+    """Handle the delete command with user confirmation."""
     try:
-        # First, find and display the task to be deleted
-        task_to_delete = None
-        for task in manager.get_all_tasks():
-            if task.index == args.task_index:
-                task_to_delete = task
-                break
-        
+        task_to_delete = _find_task_to_delete(args.task_index)
+
         if not task_to_delete:
             print(f"Error: No task found with ID {args.task_index}")
             return
-        
-        # Ask for confirmation
-        if _confirm_delete(task_to_delete):
-            deleted_task = manager.delete_task(args.task_index)
-            pretty_print.print_by_tasks_command('delete', task=deleted_task)
-        else:
+
+        if not _confirm_delete(task_to_delete):
             print(" - Delete operation cancelled.\n")
-            
+            return
+
+        deleted_task = manager.delete_task(args.task_index)
+        pretty_print.print_by_tasks_command('delete', task=deleted_task)
+
     except Exception as e:
         print(f"Error: {e}")
+
 
 
 def main():
